@@ -30,7 +30,7 @@ const App = () => {
       isMounted = false;
     };
   }, []);
-let hello ="hi";
+
   // Fetch product detail
   const fetchProductDetail = (id) => {
     setDetailLoading(true);
