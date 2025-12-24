@@ -11,16 +11,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Checkout repository
+      # ---------------- CHECKOUT ----------------
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # Setup Node.js
+      # ---------------- NODE SETUP ----------------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: |
+            se/package-lock.json
+            clie/package-lock.json
 
       # ---------------- BACKEND ----------------
       - name: Install backend dependencies
@@ -41,7 +44,7 @@ jobs:
         run: npm run lint
 
       # ---------------- DOCKER ----------------
-      - name: Set up Docker
+      - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
       - name: Build backend Docker image
