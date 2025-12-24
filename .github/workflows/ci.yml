@@ -1,41 +1,51 @@
-name : build-and-test
-#triggers: define when the workflow will run
-#trigger on push to these branches
+name: build-and-test
+
 on:
   push:
     branches: [main, dev]
   pull_request:
-    branches: [main,dev]
+    branches: [main, dev]
 
-#define the jobs to run
 jobs:
   build-and-lint:
     runs-on: ubuntu-latest
+
     steps:
+      # Checkout repository
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
+      # Setup Node.js
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
           cache: 'npm'
-      
-      - name: Install dependencies
+
+      # ---------------- BACKEND ----------------
+      - name: Install backend dependencies
+        working-directory: se
         run: npm ci
-      
-      - name: Run linter
+
+      - name: Lint backend
+        working-directory: se
         run: npm run lint
 
+      # ---------------- FRONTEND ----------------
       - name: Install frontend dependencies
-        run: npm ci
-      
-      - name: Lint frontend
         working-directory: clie
         run: npm ci
 
-      - name: Build backend image
-        run: docker build -t backend ./se
-      
-      - name: Build frontend image
-        run: docker build -t frontend ./clie
+      - name: Lint frontend
+        working-directory: clie
+        run: npm run lint
+
+      # ---------------- DOCKER ----------------
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build backend Docker image
+        run: docker build -t myapp-backend ./se
+
+      - name: Build frontend Docker image
+        run: docker build -t myapp-frontend ./clie
