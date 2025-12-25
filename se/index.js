@@ -65,6 +65,6 @@ app.get('/product/:id', async (req, res) => {
   }
 });
 
-app.listen(1000, () => {
-  console.log('server is running on port 1000');
+app.listen(process.env.PORT, () => {
+  console.log(`server is running on port ${process.env.PORT}`);
 });
