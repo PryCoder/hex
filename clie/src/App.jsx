@@ -12,7 +12,7 @@ const App = () => {
   // Fetch all products
   useEffect(() => {
     let isMounted = true;
-
+console.log('a',import.meta.env.VITE_API_URL)
     fetch(`${import.meta.env.VITE_API_URL}/products`)
       .then((res) => res.json())
       .then((data) => {
