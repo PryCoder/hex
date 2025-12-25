@@ -13,7 +13,7 @@ const App = () => {
   useEffect(() => {
     let isMounted = true;
 
-    fetch(`${process.env.VITE_API_URL}/products`)
+    fetch(`${import.meta.env.VITE_API_URL}/products`)
       .then((res) => res.json())
       .then((data) => {
         if (isMounted) {
@@ -35,7 +35,7 @@ const App = () => {
   const fetchProductDetail = (id) => {
     setDetailLoading(true);
 
-    fetch(`${process.env.VITE_API_URL}/product/${id}`)
+    fetch(`${import.meta.env.VITE_API_URL}/product/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setSelectedProduct(data.productDetail[0]);
