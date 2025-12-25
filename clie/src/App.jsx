@@ -9,11 +9,12 @@ const App = () => {
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
   console.log('a',import.meta.env.VITE_API_URL);
+  const API_URL = import.meta.env.VITE_API_URL;
   // Fetch all products
   useEffect(() => {
     let isMounted = true;
-console.log('a',import.meta.env.VITE_API_URL)
-    fetch(`${import.meta.env.VITE_API_URL}/products`)
+console.log('a',API_URL)
+    fetch(`${API_URL}/products`)
       .then((res) => res.json())
       .then((data) => {
         if (isMounted) {
@@ -35,7 +36,7 @@ console.log('a',import.meta.env.VITE_API_URL)
   const fetchProductDetail = (id) => {
     setDetailLoading(true);
 
-    fetch(`${import.meta.env.VITE_API_URL}/product/${id}`)
+    fetch(`${API_URL}/product/${id}`)
       .then((res) => res.json())
       .then((data) => {
         setSelectedProduct(data.productDetail[0]);
