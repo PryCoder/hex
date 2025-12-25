@@ -4,8 +4,14 @@ import Redis from 'ioredis';
 import cors from 'cors';
 import { getCachedData } from './middleware/redis.js';
 const app = express();
-app.use(cors({ origin: 'http://localhost:5173' }));
-
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://13.61.104.200:5173'
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
 //const redis = createClient({ url: "redis://localhost:6379" });
 
 export const redis = new Redis({
