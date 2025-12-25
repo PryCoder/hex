@@ -16,7 +16,7 @@ services:
     build:
       context: ./clie
       args:
-        VITE_API_UEL: http://13.61.104.200:1000
+        VITE_API_URL: http://13.61.104.200:1000
 
     container_name: frontend
     ports:
