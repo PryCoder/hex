@@ -8,7 +8,7 @@ const App = () => {
   // ✅ initialize loading as true
   const [loading, setLoading] = useState(true);
   const [detailLoading, setDetailLoading] = useState(false);
-
+  console.log('a',import.meta.env.VITE_API_URL);
   // Fetch all products
   useEffect(() => {
     let isMounted = true;
