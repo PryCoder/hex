@@ -50,7 +50,7 @@ console.log('a',API_URL)
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <h2>Products hi{API_URL}</h2>
+      <h2>Products hi :- {API_URL}</h2>
 
       {loading ? (
         <p>Loading products...</p>
