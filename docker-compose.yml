@@ -1,3 +1,5 @@
+version: "3.9"
+
 services:
   backend:
     build: ./se
@@ -5,8 +7,8 @@ services:
     restart: always
     env_file:
       - ./se/.env
-    ports:
-      - "1000:1000"
+    expose:
+      - "1000"
     depends_on:
       - redis
     networks:
@@ -16,21 +18,36 @@ services:
     build:
       context: ./clie
       args:
-        VITE_API_URL: http://13.61.104.200:1000
-
+        VITE_API_URL: /api
     container_name: frontend
-    ports:
-      - "5173:5173"
-    networks:
-      - app-network
+    restart: unless-stopped
+    expose:
+      - "5173"
     depends_on:
       - backend
+    networks:
+      - app-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+      - backend
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./favicon.ico:/usr/share/nginx/html/favicon.ico
+    networks:
+      - app-network
 
   redis:
     image: redis/redis-stack
     container_name: redis-stack
-    ports:
-      - "6379:6379"
+    expose:
+      - "6379"
     networks:
       - app-network
 
