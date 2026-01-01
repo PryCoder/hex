@@ -1,112 +1,64 @@
-// App.jsx
 import { useEffect, useState } from 'react';
 
 const App = () => {
-  const [products, setProducts] = useState([]);
-  const [selectedProduct, setSelectedProduct] = useState(null);
-
-  // ✅ initialize loading as true
-  const [loading, setLoading] = useState(true);
-  const [detailLoading, setDetailLoading] = useState(false);
-  console.log('a',import.meta.env.VITE_API_URL);
   const API_URL = import.meta.env.VITE_API_URL;
-  // Fetch all products
-  useEffect(() => {
-    let isMounted = true;
-console.log('a',API_URL)
-    fetch(`${API_URL}/products`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (isMounted) {
-          setProducts(data.products);
-          setLoading(false);
-        }
-      })
-      .catch((err) => {
-        console.error('Error fetching products:', err);
-        if (isMounted) setLoading(false);
-      });
 
-    return () => {
-      isMounted = false;
-    };
+  const [products, setProducts] = useState([]);
+  const [selected, setSelected] = useState(null);
+  const [form, setForm] = useState({
+    productname: '',
+    quantity: '',
+    quality: 'High',
+    price: '',
+    description: '',
+  });
+
+  const loadProducts = () =>
+    fetch(`${API_URL}/products`)
+      .then(res => res.json())
+      .then(data => setProducts(data.products));
+
+  useEffect(() => {
+    loadProducts();
   }, []);
 
-  // Fetch product detail
-  const fetchProductDetail = (id) => {
-    setDetailLoading(true);
+  const saveProduct = () => {
+    fetch(`${API_URL}/products`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(form),
+    }).then(() => {
+      setForm({});
+      loadProducts();
+    });
+  };
 
-    fetch(`${API_URL}/product/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setSelectedProduct(data.productDetail[0]);
-        setDetailLoading(false);
-      })
-      .catch((err) => {
-        console.error('Error fetching product detail:', err);
-        setDetailLoading(false);
-      });
+  const deleteProduct = (id) => {
+    fetch(`${API_URL}/product/${id}`, { method: 'DELETE' })
+      .then(loadProducts);
   };
 
   return (
-    <div style={{ padding: '20px', fontFamily: 'Arial' }}>
-      <h2>Products hi :- {API_URL}</h2>
+    <div style={{ padding: 30 }}>
+      <h1>🛒 Product Store</h1>
 
-      {loading ? (
-        <p>Loading products...</p>
-      ) : (
-        <ul>
-          {products.map((product) => (
-            <li
-              key={product.id}
-              style={{ cursor: 'pointer', marginBottom: '10px' }}
-              onClick={() => fetchProductDetail(product.id)}
-            >
-              <strong>{product.productname}</strong> — Quantity:{' '}
-              {product.quantity} — Quality: {product.quality} — Price: $
-              {product.price}
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* CREATE */}
+      <div>
+        <input placeholder="Name" onChange={e => setForm({...form, productname:e.target.value})}/>
+        <input placeholder="Qty" onChange={e => setForm({...form, quantity:e.target.value})}/>
+        <input placeholder="Price" onChange={e => setForm({...form, price:e.target.value})}/>
+        <button onClick={saveProduct}>Add</button>
+      </div>
 
-      {selectedProduct && (
-        <div
-          style={{
-            marginTop: '30px',
-            borderTop: '1px solid #ccc',
-            paddingTop: '20px',
-          }}
-        >
-          <h2>Product Detail</h2>
+      <hr/>
 
-          {detailLoading ? (
-            <p>Loading details...</p>
-          ) : (
-            <div>
-              <p>
-                <strong>ID:</strong> {selectedProduct.id}
-              </p>
-              <p>
-                <strong>Name:</strong> {selectedProduct.productname}
-              </p>
-              <p>
-                <strong>Quantity:</strong> {selectedProduct.quantity}
-              </p>
-              <p>
-                <strong>Quality:</strong> {selectedProduct.quality}
-              </p>
-              <p>
-                <strong>Price:</strong> ${selectedProduct.price}
-              </p>
-              <p>
-                <strong>Description:</strong>{' '}
-                {selectedProduct.description}
-              </p>
-            </div>
-          )}
+      {/* LIST */}
+      {products.map(p => (
+        <div key={p._id} style={{ marginBottom: 10 }}>
+          <b>{p.productname}</b> - ${p.price}
+          <button onClick={() => deleteProduct(p._id)}>❌</button>
         </div>
-      )}
+      ))}
     </div>
   );
 };
