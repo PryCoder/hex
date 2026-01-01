@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 
 const App = () => {
   const API_URL = import.meta.env.VITE_API_URL;
@@ -18,75 +18,73 @@ const App = () => {
   const [error, setError] = useState(null);
 
   // ================= LOAD ALL PRODUCTS =================
-  const loadProducts = () => {
+  const loadProducts = useCallback(async () => {
     setLoading(true);
-    fetch(`${API_URL}/products`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch products');
-        return res.json();
-      })
-      .then((data) => {
-        setProducts(data.products);
-        setLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setError('Unable to load products');
-        setLoading(false);
-      });
-  };
+    setError(null);
 
-  useEffect(() => {
-    loadProducts();
+    try {
+      const res = await fetch(`${API_URL}/products`);
+      if (!res.ok) throw new Error('Failed to fetch products');
+      const data = await res.json();
+      setProducts(data.products);
+    } catch (err) {
+      console.error(err);
+      setError('Unable to load products');
+    } finally {
+      setLoading(false);
+    }
   }, [API_URL]);
 
+  useEffect(() => {
+    loadProducts(); // safe to call async function inside useEffect
+  }, [loadProducts]);
+
   // ================= CREATE PRODUCT =================
-  const saveProduct = () => {
-    fetch(`${API_URL}/products`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(form),
-    })
-      .then((res) => res.json())
-      .then(() => {
-        setForm({
-          productname: '',
-          quantity: '',
-          quality: 'High',
-          price: '',
-          description: '',
-        });
-        loadProducts();
-      })
-      .catch((err) => console.error(err));
+  const saveProduct = async () => {
+    try {
+      await fetch(`${API_URL}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(form),
+      });
+      // reset form
+      setForm({
+        productname: '',
+        quantity: '',
+        quality: 'High',
+        price: '',
+        description: '',
+      });
+      loadProducts(); // reload products
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ================= DELETE PRODUCT =================
-  const deleteProduct = (id) => {
-    fetch(`${API_URL}/product/${id}`, { method: 'DELETE' })
-      .then(() => {
-        // Clear selected if it was deleted
-        if (selected && selected._id === id) setSelected(null);
-        loadProducts();
-      })
-      .catch((err) => console.error(err));
+  const deleteProduct = async (id) => {
+    try {
+      await fetch(`${API_URL}/product/${id}`, { method: 'DELETE' });
+      if (selected && selected._id === id) setSelected(null);
+      loadProducts();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   // ================= FETCH PRODUCT DETAIL =================
-  const fetchProductDetail = (id) => {
+  const fetchProductDetail = async (id) => {
     setDetailLoading(true);
     setSelected(null);
-
-    fetch(`${API_URL}/product/${id}`)
-      .then((res) => res.json())
-      .then((data) => {
-        setSelected(data.productDetail);
-        setDetailLoading(false);
-      })
-      .catch((err) => {
-        console.error(err);
-        setDetailLoading(false);
-      });
+    try {
+      const res = await fetch(`${API_URL}/product/${id}`);
+      const data = await res.json();
+      setSelected(data.productDetail);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDetailLoading(false);
+    }
   };
 
   return (
@@ -150,7 +148,7 @@ const App = () => {
           <button
             style={{ marginLeft: 10 }}
             onClick={(e) => {
-              e.stopPropagation(); // prevent opening detail
+              e.stopPropagation();
               deleteProduct(p._id);
             }}
           >
